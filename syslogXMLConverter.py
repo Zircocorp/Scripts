@@ -59,6 +59,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", '-i', help="Syslog file to convert", type=str, required=True)
     parser.add_argument("--output", '-o', help="Json output file", type=str)
+    parser.add_argument("--core", '-n', help="Core number", type=int, default=mp.cpu_count())
     args = parser.parse_args()
     
     file = args.input
@@ -68,16 +69,16 @@ if __name__ == "__main__":
     with open(file, "r", encoding="ISO-8859-1") as fp:
     	data = fp.readlines()
 
-    pool = mp.Pool(mp.cpu_count())
+    pool = mp.Pool(args.core)
     result = list(tqdm(pool.map(parseLine, data), total=len(data), colour="green"))
     pool.close()
     pool.join()
     outputData = json.dumps(result)
     end = timer()
-    print(timedelta(seconds=end-start))
     
     if args.output:
        json.dump(result,open(args.output, 'w'))
     #else:
     #   print(result)
 
+    print(timedelta(seconds=end-start))
