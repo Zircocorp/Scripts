@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from lxml import etree
 
 def remove_namespace(doc, namespace):
@@ -47,24 +50,34 @@ if __name__ == "__main__":
 
     import sys
     import json
+    import argparse
     import multiprocessing as mp
-
-    if len(sys.argv) != 2:
-        print("USAGE: %s <file>" % sys.argv[0])
-        sys.exit(-1)
-
-    file = sys.argv[1]
-    output = file + ".json"
-
-    #for line in open(file, "r", encoding="ISO-8859-1").readlines():
-    #    if '<Event>' in line:
-    #        json.dump(parseLine(line.rstrip('\n')),open(output, 'a'))
+    from tqdm import tqdm
+    from timeit import default_timer as timer
+    from datetime import timedelta
     
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", '-i', help="Syslog file to convert", type=str, required=True)
+    parser.add_argument("--output", '-o', help="Json output file", type=str)
+    args = parser.parse_args()
+    
+    file = args.input
+    
+    start = timer()
+
     with open(file, "r", encoding="ISO-8859-1") as fp:
     	data = fp.readlines()
 
     pool = mp.Pool(mp.cpu_count())
-    result = json.dumps(pool.map(parseLine, data))
+    result = list(tqdm(pool.map(parseLine, data), total=len(data), colour="green"))
+    pool.close()
+    pool.join()
+    outputData = json.dumps(result)
+    end = timer()
+    print(timedelta(seconds=end-start))
     
-    json.dump(result,open(output, 'w'))
+    if args.output:
+       json.dump(result,open(args.output, 'w'))
+    #else:
+    #   print(result)
 
