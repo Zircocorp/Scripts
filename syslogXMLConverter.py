@@ -19,10 +19,12 @@ def parseLine(xmlLine):
     	return None
     xmlLine = "<Event>" + xmlLine.split("<Event>")[1]
     root = etree.fromstring(xmlLine)
-    remove_namespace(root,u'http://schemas.microsoft.com/win/2004/08/events/event')
-    child = {"#attributes": {"xmlns":"http://schemas.microsoft.com/win/2004/08/events/event"}}
+    ns = u'http://schemas.microsoft.com/win/2004/08/events/event'
+    nsl = len(ns)
+    #remove_namespace(root,ns)
+    child = {"#attributes": {"xmlns": ns}}
     for appt in root.getchildren():
-        nodename = appt.tag
+        nodename = appt.tag[nsl:]
         nodevalue = {}
         for elem in appt.getchildren():
             if not elem.text:
@@ -35,7 +37,7 @@ def parseLine(xmlLine):
             if elem.tag == 'Data':
             	childnode = elem.get("Name")
             else:
-            	childnode = elem.tag
+            	childnode = elem.tag[nsl:]
             	if elem.attrib:
             	    text = {"#attributes": dict(elem.attrib)}
             obj={childnode:text}
