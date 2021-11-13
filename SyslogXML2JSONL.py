@@ -10,6 +10,12 @@ from timeit import default_timer as timer
 from datetime import timedelta
 from lxml import etree
 
+def cleanTag(tag,ns):
+    nsl = len(ns)
+    if ns in tag:
+       return appt.tag[nsl:]
+    else:
+       return tag
 
 def parseLine(xmlLine):
     """
@@ -20,10 +26,9 @@ def parseLine(xmlLine):
     xmlLine = "<Event>" + xmlLine.split("<Event>")[1]
     root = etree.fromstring(xmlLine)
     ns = u'http://schemas.microsoft.com/win/2004/08/events/event'
-    nsl = len(ns)
     child = {"#attributes": {"xmlns": ns}}
     for appt in root.getchildren():
-        nodename = appt.tag[nsl:]
+        nodename = cleanTag(appt.tag,ns)
         nodevalue = {}
         for elem in appt.getchildren():
             if not elem.text:
@@ -36,7 +41,7 @@ def parseLine(xmlLine):
             if elem.tag == 'Data':
                 childnode = elem.get("Name")
             else:
-                childnode = elem.tag[nsl:]
+                childnode = cleanTag(elem.tag,ns)
                 if elem.attrib:
                     text = {"#attributes": dict(elem.attrib)}
             obj={childnode:text}
