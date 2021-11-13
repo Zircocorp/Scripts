@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
 import json
 import argparse
 import multiprocessing as mp
@@ -9,11 +8,12 @@ from tqdm import tqdm
 from timeit import default_timer as timer
 from datetime import timedelta
 from lxml import etree
+import chardet
 
 def cleanTag(tag,ns):
     nsl = len(ns)
     if ns in tag:
-       return appt.tag[nsl:]
+       return tag[nsl:]
     else:
        return tag
 
@@ -64,6 +64,16 @@ if __name__ == "__main__":
     file = args.input
     
     start = timer()
+    
+    #with open(file, "rb") as fp:
+    #    line = fp.readline()
+    #    testStr = b''
+    #    count = 0
+    #    while line and count < 100000:  #Set based on lines you'd want to check
+    #         testStr = testStr + line
+    #         count = count + 1
+    #         line = fp.readline()
+    #    print(chardet.detect(testStr))
 
     with open(file, "r", encoding="ISO-8859-1") as fp:
         data = fp.readlines()
